@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 import cv2
+import numpy as np
 from cv_bridge import CvBridge
 
 class VisionReseive(Node):
@@ -16,6 +17,13 @@ class VisionReseive(Node):
         
         self.bridge = CvBridge()
 
+        self.boundaries = [
+	                        ([17, 15, 100], [50, 56, 200]),
+	                        ([86, 31, 4], [220, 88, 50]),
+	                        ([25, 146, 190], [62, 174, 250]),
+	                        ([103, 86, 65], [145, 133, 128])
+]
+
     def listener_callback(self, msg):
         cv_image  = self.bridge.imgmsg_to_cv2(msg, "bgr8")
 
@@ -24,14 +32,23 @@ class VisionReseive(Node):
 
         # Convertir imagen a grayscales
         gray = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
-        _, threshold = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
+        #blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+        #_, threshold = cv2.threshold(blurred, 80, 255, cv2.THRESH_BINARY_INV)
 
+        edges = cv2.Canny(gray, 100, 200, L2gradient = True)
 
-        contours, _ = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
   
+        filtered_contours = []
+        for contour in contours:
+            area = cv2.contourArea(contour)
+            if area > 100:  # Adjust the minimum area threshold as needed
+                filtered_contours.append(contour)
+
+
         i = 0
 
-        for contour in contours:
+        for contour in filtered_contours:
             # here we are ignoring first counter because 
             # findcontour function detects whole image as shape
             if i == 0:
@@ -39,11 +56,10 @@ class VisionReseive(Node):
                 continue
             
             # cv2.approxPloyDP() function to approximate the shape
-            approx = cv2.approxPolyDP(
-                contour, 0.01 * cv2.arcLength(contour, True), True)
+            approx = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, True), True)
 
             # using drawContours() function
-            cv2.drawContours(cv_image, [contour], 0, (0, 0, 255), 5)
+            cv2.drawContours(cv_image, [approx], 0, (0, 0, 255), 5)
 
             # finding center point of shapecircl
             x=0
