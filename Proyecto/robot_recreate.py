@@ -8,7 +8,7 @@ class robot_recreate(Node):
     def __init__(self):
         super().__init__('robot_recreate')
         self.publisher_ = self.create_publisher(Twist, 'robot_cmdVel', 10)
-        self.recrear_recorrido('sample')
+        self.recrear_recorrido('instructions')
 
     def recrear_recorrido(self, file):
         # leer el archivo y publicar los movimientos
