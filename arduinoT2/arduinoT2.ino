@@ -6,6 +6,8 @@ int mL2 = 5;
 int pwmR = 6;
 int pwmL = 7;
 
+int vel = 80;
+
 float x, y;
 
 void setup() {
@@ -35,41 +37,41 @@ void loop() {
       if (x < 0) {
         digitalWrite(mL1, HIGH);
         digitalWrite(mL2, LOW);
-        digitalWrite(pwmL, 100);
+        analogWrite(pwmL, vel);
 
         digitalWrite(mR1, HIGH);
         digitalWrite(mR2, LOW);
-        digitalWrite(pwmR, 100);
+        analogWrite(pwmR, vel);
         
       }
       else if (x>0){
         digitalWrite(mL2, HIGH);
         digitalWrite(mL1, LOW);
-        digitalWrite(pwmL, 100);
+        analogWrite(pwmL, vel);
 
         digitalWrite(mR2, HIGH);
         digitalWrite(mR1, LOW);
-        digitalWrite(pwmR, 100);
+        analogWrite(pwmR, vel);
       }
 
       else if (y < 0){
         digitalWrite(mL2, HIGH);
         digitalWrite(mL1, LOW);
-        digitalWrite(pwmL, 100);
+        analogWrite(pwmL, vel);
 
         digitalWrite(mR2, LOW);
         digitalWrite(mR1, HIGH);
-        digitalWrite(pwmR, 70);
+        analogWrite(pwmR, vel);
        }
 
        else if (y > 0){
         digitalWrite(mL2, LOW);
         digitalWrite(mL1, HIGH);
-        digitalWrite(pwmL, 100);
+        analogWrite(pwmL, vel);
 
         digitalWrite(mR2, HIGH);
         digitalWrite(mR1, LOW);
-        digitalWrite(pwmR, 70);
+        analogWrite(pwmR, vel);
        }
       else if (x==0 || y==0){
         digitalWrite(mL1, LOW);

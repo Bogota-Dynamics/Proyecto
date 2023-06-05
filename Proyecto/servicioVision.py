@@ -38,27 +38,39 @@ class ServicioVision(Node):
 
         #Ir al primero
         if (banner_a < banner_b):
+            self.get_logger().info('Navegando a banner: ' + str(banner_a))
             self.recrear_recorrido(str(banner_a))
         else:
+            self.get_logger().info('Navegando a banner: ' + str(banner_b))
             self.recrear_recorrido(str(banner_b))
 
 
         #Dar tiempo para procesar la imagen antes de ir al siguiente 
-        time.sleep(1)
+        self.get_logger().info('Procesando imagen')
+        time.sleep(2)
+        newImage1 = self.imagen.copy()
+        figura1, palabra1, color1 = self.persepcion(newImage1)
+
 
         #Ir al segundo
-        #if (banner_a < banner_b):
-        #    nombre = str(banner_a)+str(banner_b)
-        #    self.recrear_recorrido(nombre)
-        #else:
-        #    nombre = str(banner_b)+str(banner_a)
-        #    self.recrear_recorrido(nombre)
+        if (banner_a < banner_b):
+            self.get_logger().info('Navegando a banner: ' + str(banner_b))
+            nombre = str(banner_a)+str(banner_b)
+            self.recrear_recorrido(nombre)
+        else:
+            self.get_logger().info('Navegando a banner: ' + str(banner_a))
+            nombre = str(banner_b)+str(banner_a)
+            self.recrear_recorrido(nombre)
 
+        #Dar tiempo para procesar la imagen antes de ir al siguiente 
+        self.get_logger().info('Procesando imagen')
+        time.sleep(2)
+        newImage2 = self.imagen.copy()
+        figura2, palabra2, color2 = self.persepcion(newImage2)
 
-        #Obtener solo un frame
-        newImage = self.imagen.copy()
-        figura1, palabra1, color1 = self.persepcion(newImage)
-        response.answer = "Resultados, figura: " + figura1 + " , palabra: " + palabra1 + " , color: " + color1
+        response.answer = "Resultados banner 1, figura: " + figura1 + " , palabra: " + palabra1 + " , color: " + color1 + ". Resultados banner 2, figura: " + figura2 + " , palabra: " + palabra2 + " , color: " + color2
+
+        self.get_logger().info('Terminado')
 
         return response
 
@@ -76,8 +88,6 @@ class ServicioVision(Node):
         msg_viejo = 0   
 
         with open(filename, 'r') as f:
-            # 1. La primera linea es la velocidad lineal y angular
-            vels = f.readline().split(',')
             linear = 5.0
             angular = 5.0
             # 2. Las siguientes lineas son los movimientos
@@ -93,16 +103,12 @@ class ServicioVision(Node):
                 msg = Twist()
                 if line == 'TriggerR':
                     msg.linear.x = linear
-                    self.get_logger().info('Publishing: Adelante')
                 elif line == 'TriggerL':
                     msg.linear.x = -linear
-                    self.get_logger().info('Publishing: Atras')
                 elif line == 'Izquierda':
                     msg.angular.z = angular
-                    self.get_logger().info('Publishing: Izquierda')
                 elif line == 'Derecha':
-                    msg.angular.y = -angular
-                    self.get_logger().info('Publishing: Derecha')
+                    msg.angular.z = -angular
                 elif line == 'QUIETO':
                     msg.linear.x=0.0
                     msg.angular.z=0.0
@@ -117,7 +123,6 @@ class ServicioVision(Node):
         msg.linear.x=0.0
         msg.angular.z=0.0
         self.publisher_.publish(msg)        
-        self.get_logger().info('Done')
         # retornar el path global del archivo
 
 
