@@ -12,15 +12,18 @@ class robot_navigation(Node):
         self.publisher_ = self.create_publisher(Twist, 'robot_cmdVel', 10)
 
     def navigation_test_callback(self, request, response):
-        start_x = request.start_x
-        start_y = request.start_y
-        goal_x = request.goal_x
-        goal_y = request.goal_y
+        start_x = 900 # request.start_x
+        start_y = 455 # request.start_y
+        goal_x = request.x
+        goal_y = request.y
 
         self.get_logger().info('Calculando ruta desde: ' + str(start_x) + ',' + str(start_y) + ' hasta: ' + str(goal_x) + ',' + str(goal_y))
         get_path((start_y, start_x), (goal_y, goal_x), True, True)
         self.get_logger().info('¡Ruta Calculada! Robot en movimiento')
         self.recrear_recorrido('instructions')
+
+        response.answer = "Finalizado"
+        return response
 
     def recrear_recorrido(self, file):
         # leer el archivo y publicar los movimientos
@@ -79,9 +82,6 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-
-
-
 
 
 """ PATH PLANNING """

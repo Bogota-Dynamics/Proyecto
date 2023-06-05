@@ -247,3 +247,5 @@ def get_path(start_positionyx, goal_positionyx, showplot=False, go_just_closest=
     if showplot:
         plt.show()
 
+if __name__ == "__main__":
+    get_path((455, 900), (631, 477), showplot=True, go_just_closest=True)
