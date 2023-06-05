@@ -9,7 +9,7 @@ import easyocr
 from os.path import abspath
 from geometry_msgs.msg import Twist
 import time
-
+import threading
 
 class ServicioVision(Node):
 
@@ -27,52 +27,69 @@ class ServicioVision(Node):
         #Crear un publicador para llegar a las zonas de vision
         self.publisher_ = self.create_publisher(Twist, 'robot_cmdVel', 10)
 
+        #Crear publicador para resultado banner
+        self.publisher2 = self.create_publisher(Banner, '/vision/banner_group_7', 10)
+
     def listener_callback(self, msg):
         self.imagen  = self.bridge.imgmsg_to_cv2(msg, "bgr8")
 
-    def persepction_test_callback(self, request, response):
-
+    def service_method_thread(self, request):
         #Recibir el id de los banners que toca realizar la vision
         banner_a = request.banner_a
         banner_b = request.banner_b
 
         #Ir al primero
-        if (banner_a < banner_b):
-            self.get_logger().info('Navegando a banner: ' + str(banner_a))
-            self.recrear_recorrido(str(banner_a))
-        else:
-            self.get_logger().info('Navegando a banner: ' + str(banner_b))
-            self.recrear_recorrido(str(banner_b))
+        self.get_logger().info('Navegando a banner: ' + str(banner_a))
+        self.recrear_recorrido(str(banner_a))
 
 
         #Dar tiempo para procesar la imagen antes de ir al siguiente 
         self.get_logger().info('Procesando imagen')
         time.sleep(2)
         newImage1 = self.imagen.copy()
+        status = cv2.imwrite('src/Proyecto/fotos/primera.jpg', newImage1) 
         figura1, palabra1, color1 = self.persepcion(newImage1)
+        ban1 = Banner()
+        ban1.banner = banner_a
+        ban1.figure = figura1
+        ban1.word = palabra1
+        ban1.color = color1
+
+        self.publisher2.publish(ban1)
 
 
         #Ir al segundo
-        if (banner_a < banner_b):
-            self.get_logger().info('Navegando a banner: ' + str(banner_b))
-            nombre = str(banner_a)+str(banner_b)
-            self.recrear_recorrido(nombre)
-        else:
-            self.get_logger().info('Navegando a banner: ' + str(banner_a))
-            nombre = str(banner_b)+str(banner_a)
-            self.recrear_recorrido(nombre)
+        self.get_logger().info('Navegando a banner: ' + str(banner_b))
+        nombre = str(banner_a)+str(banner_b)
+        self.recrear_recorrido(nombre)
+    
 
         #Dar tiempo para procesar la imagen antes de ir al siguiente 
         self.get_logger().info('Procesando imagen')
         time.sleep(2)
         newImage2 = self.imagen.copy()
         figura2, palabra2, color2 = self.persepcion(newImage2)
+        ban2 = Banner()
+        ban2.banner = banner_b
+        ban2.figure = figura2
+        ban2.word = palabra2
+        ban2.color = color2
 
-        response.answer = "Resultados banner 1, figura: " + figura1 + " , palabra: " + palabra1 + " , color: " + color1 + ". Resultados banner 2, figura: " + figura2 + " , palabra: " + palabra2 + " , color: " + color2
+        self.publisher2.publish(ban2)
 
+        a = "Resultados banner 1, figura: " + figura1 + " , palabra: " + palabra1 + " , color: " + color1 + ". Resultados banner 2, figura: " + figura2 + " , palabra: " + palabra2 + " , color: " + color2
+        self.get_logger().info(a)
         self.get_logger().info('Terminado')
+    
+
+
+    def persepction_test_callback(self, request, response):
+        thread = threading.Thread(target=lambda : self.service_method_thread(request))
+        thread.start()
+        response.answer = "Finalizado"
 
         return response
+        
 
 
     def recrear_recorrido(self, file):
@@ -99,7 +116,6 @@ class ServicioVision(Node):
             for line in f:
                 start = time.time()
                 line = line.strip()
-                print(line)
                 msg = Twist()
                 if line == 'TriggerR':
                     msg.linear.x = linear
@@ -114,7 +130,7 @@ class ServicioVision(Node):
                     msg.angular.z=0.0
 
                 # Los mensajes se publican cada 0.04 segundos aproximadamente
-                time.sleep(0.5)
+                time.sleep(0.05)
                 if (msg_viejo != msg):
                     self.publisher_.publish(msg)
                     msg_viejo = msg
@@ -142,7 +158,7 @@ class ServicioVision(Node):
         edges = cv2.Canny(gray, 127, 200, L2gradient = True)
 
         contours, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-  
+      
         filtered_contours = []
         for contour in contours:
             area = cv2.contourArea(contour)
@@ -247,6 +263,8 @@ class ServicioVision(Node):
         
         cv2.putText(cv_colores, color, (cx, cy), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
         cv2.rectangle(cv_colores, (0, 0), (width, height), (255, 0, 0), 2) 
+
+        #print(res_forma + ", " + res_palabra + ", " + color)
 
         return  res_forma, res_palabra, color
 
