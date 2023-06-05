@@ -22,6 +22,7 @@ setup(
         'console_scripts': ['send = Proyecto.visionSend:main',
                             'reseive = Proyecto.visionReseive:main',
                             'persepcion = Proyecto.servicioVision:main',
+                            'navigation = Proyecto.robot_navigation:main',
                             'control = Proyecto.robot_control:main',
                             'recreate = Proyecto.robot_recreate:main',
         ],
