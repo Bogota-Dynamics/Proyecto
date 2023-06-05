@@ -20,7 +20,9 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': ['send = Proyecto.visionSend:main',
-                            'reseive = Proyecto.visionReseive:main'
+                            'reseive = Proyecto.visionReseive:main',
+                            'persepcion = Proyecto.servicioVision:main',
+                            'control = Proyecto.robot_control:main'
         ],
     },
 )
