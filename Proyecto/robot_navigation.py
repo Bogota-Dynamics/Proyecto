@@ -14,8 +14,8 @@ class robot_navigation(Node):
     def navigation_test_callback(self, request, response):
         start_x = 900 # request.start_x
         start_y = 455 # request.start_y
-        goal_x = request.x
-        goal_y = request.y
+        goal_x = int(request.x)
+        goal_y = int(request.y)
 
         self.get_logger().info('Calculando ruta desde: ' + str(start_x) + ',' + str(start_y) + ' hasta: ' + str(goal_x) + ',' + str(goal_y))
         get_path((start_y, start_x), (goal_y, goal_x), True, True)
