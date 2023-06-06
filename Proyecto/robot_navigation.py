@@ -33,7 +33,7 @@ class robot_navigation(Node):
         try:
             i2c = busio.I2C(board.SCL, board.SDA)
             self.vl53 = adafruit_vl53l0x.VL53L0X(i2c)
-        except ValueError:
+        except:
             print("Error al inicializar el sensor VL53L0X")
             self.vl53 = M()
             setattr(self.vl53, 'range', 1000)

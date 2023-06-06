@@ -21,3 +21,10 @@ TriggerR
 TriggerR
 TriggerR
 Derecha
+TriggerR
+TriggerR
+TriggerR
+TriggerR
+TriggerR
+TriggerR
+TriggerR

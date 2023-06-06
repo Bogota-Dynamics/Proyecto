@@ -22,21 +22,29 @@ class ManipuladorNode(Node):
         x = request.x
 
         if platform == 'platform_1':
+            print('Moviendo el robot a la plataforma 1')
             self.recrear_recorrido('manipulation_01')
             time.sleep(5)
+            print('Tomando la ficha')
             self.enviar_manipulador(1.0)
             time.sleep(5)
+            print('Moviendo el robot a la plataforma 2')
             self.recrear_recorrido('manipulation_12')
             time.sleep(5)
+            print('Dejando la ficha')
             self.enviar_manipulador(2.0)
 
         elif platform == 'platform_2':
+            print('Moviendo el robot a la plataforma 2')
             self.recrear_recorrido('manipulation_02')
             time.sleep(5)
+            print('Tomando la ficha')
             self.enviar_manipulador(2.0)
             time.sleep(5)
+            print('Moviendo el robot a la plataforma 1')
             self.recrear_recorrido('manipulation_21')
             time.sleep(5)
+            print('Dejando la ficha')
             self.enviar_manipulador(1.0)
 
         # Realizar las operaciones necesarias para determinar la plataforma de origen y destino
@@ -45,7 +53,8 @@ class ManipuladorNode(Node):
         origin_platform = 'platform_1' if platform == 'platform_1' else 'platform_2'
         destination_platform = 'platform_2' if platform == 'platform_1' else 'platform_1'
         response.answer = f"La ficha de tipo {x} se encuentra en la plataforma {origin_platform} y la llevaré a la plataforma {destination_platform}"
-
+        print(response.answer)
+        
         return response
     
     def enviar_manipulador(self, v):
@@ -77,6 +86,7 @@ class ManipuladorNode(Node):
             #    QUIETO: pausa, separada por '=' del tiempo de pausa
             for line in f:
                 line = line.strip()
+                print(line)
                 msg = Twist()
                 if line == 'TriggerR':
                     msg.linear.x = linear
