@@ -164,6 +164,8 @@ if (Serial.available() > 0) {
       servoMotor3.write(angulo3);
 
     delay(100); // Tiempo de espera entre incrementos
+      
+    manipulador =0;
   
   }
   }
@@ -212,5 +214,6 @@ if (Serial.available() > 0) {
   
   }
   }
+   manipulador = 0;
   
 }
