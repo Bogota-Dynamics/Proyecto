@@ -3,13 +3,33 @@ from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from my_msgs.srv import StartNavigationTest
 import time
+import board
+import busio
+import adafruit_vl53l0x
+
+import heapq
+import numpy as np
+from PIL import Image
+import matplotlib.pyplot as plt
+
+from functools import wraps
+
+""" CONSTANTES DE PRUEBA """
+NUM_QUIETOS = 15 # Número de veces que se repite QUIETO entre instrucciones
+FACTOR_TRIGGERR = 3.5 # Factor por el que se divide el número de veces que se repite TriggerR entre instrucciones
+NUM_GIROS_90G = 20 # Número de veces que se repite una instruccion de giro para girar 90 grados
+SECURE_RANGE = 200 # Rango de seguridad en mm (distancia a la que se detiene el robot)
+TIME_TO_CORRECT = 10 # Tiempo que se espera un objeto dinamico para corregir la trayectoria (asumirlo estatico)
+NUM_TRIGGERL = 7 # Número de veces que se repite TriggerL para retroceder si se detecta un objeto estatico
 
 class robot_navigation(Node):
-
     def __init__(self):
         super().__init__('robot_navigation')
         self.service = self.create_service(StartNavigationTest, '/group_7/start_navigation_test_srv', self.navigation_test_callback)
         self.publisher_ = self.create_publisher(Twist, 'robot_cmdVel', 10)
+        # Initialize I2C bus and sensor.
+        i2c = busio.I2C(board.SCL, board.SDA)
+        self.vl53 = adafruit_vl53l0x.VL53L0X(i2c)
 
     def navigation_test_callback(self, request, response):
         start_x = 900 # request.start_x
@@ -20,6 +40,7 @@ class robot_navigation(Node):
         self.get_logger().info('Calculando ruta desde: ' + str(start_x) + ',' + str(start_y) + ' hasta: ' + str(goal_x) + ',' + str(goal_y))
         get_path((start_y, start_x), (goal_y, goal_x), True, True)
         self.get_logger().info('¡Ruta Calculada! Robot en movimiento')
+
         self.recrear_recorrido('instructions')
 
         response.answer = "Finalizado"
@@ -34,43 +55,65 @@ class robot_navigation(Node):
         msg.angular.z=0.0
         self.publisher_.publish(msg)
 
-        msg_viejo = 0   
+        msg_viejo = 0
+        range_viejo = 0
 
         with open(filename, 'r') as f:
             linear = 5.0
             angular = 5.0
+            data = f.readlines()
+            i = 0
             # 2. Las siguientes lineas son los movimientos
             #    TriggerR: adelante
             #    TriggerL: atras
             #    Izquierda: izquierda
             #    Derecha: derecha
-            #    QUIETO: pausa, separada por '=' del tiempo de pausa
-            for line in f:
-                start = time.time()
+            #    QUIETO: pausa
+            last_movement_time = time.time()
+            while i < len(data):
+                line = data[i]
                 line = line.strip()
                 msg = Twist()
-                if line == 'TriggerR':
-                    msg.linear.x = linear
-                elif line == 'TriggerL':
-                    msg.linear.x = -linear
-                elif line == 'Izquierda':
-                    msg.angular.z = angular
-                elif line == 'Derecha':
-                    msg.angular.z = -angular
-                elif line == 'QUIETO':
-                    msg.linear.x=0.0
-                    msg.angular.z=0.0
+                
+                range = self.vl53.range # Rango en mm medido por el sensor
+                if range > SECURE_RANGE:
+                    last_movement_time = time.time()
 
-                # Los mensajes se publican cada 0.04 segundos aproximadamente
+                    if line == 'TriggerR':
+                        msg.linear.x = linear
+                    elif line == 'TriggerL':
+                        msg.linear.x = -linear
+                    elif line == 'Izquierda':
+                        msg.angular.z = angular
+                    elif line == 'Derecha':
+                        msg.angular.z = -angular
+                    elif line == 'QUIETO':
+                        msg.linear.x=0.0
+                        msg.angular.z=0.0
+                else:
+                    time_since_last_movement = time.time() - last_movement_time
+                    if time_since_last_movement > TIME_TO_CORRECT:
+                        for j in range(NUM_TRIGGERL):
+                            msg.linear.x = -linear
+                            self.publisher_.publish(msg)
+                            time.sleep(0.05)
+                    else:
+                        msg.linear.x=0.0
+                        msg.angular.z=0.0
+                        continue # No sigue enviando instrucciones hasta que el rango sea mayor a SECURE_RANGE
+
+                # Los mensajes se publican cada 0.05 segundos aproximadamente
                 time.sleep(0.05)
                 if (msg_viejo != msg):
                     self.publisher_.publish(msg)
                     msg_viejo = msg
+                
+                i += 1
 
         msg = Twist()
         msg.linear.x=0.0
         msg.angular.z=0.0
-        self.publisher_.publish(msg)        
+        self.publisher_.publish(msg)
         # retornar el path global del archivo
 
 def main(args=None):
@@ -85,14 +128,6 @@ if __name__ == '__main__':
 
 
 """ PATH PLANNING """
-
-import heapq
-import numpy as np
-from PIL import Image
-import matplotlib.pyplot as plt
-
-import time
-from functools import wraps
 
 def timer(func):
     @wraps(func)
@@ -336,11 +371,6 @@ def get_path(start_positionyx, goal_positionyx, showplot=False, go_just_closest=
         plt.show()
 
 """ GUARDAR RUTA A INSTRUCCIONES EN UN TXT """
-
-""" CONSTANTES DE PRUEBA """
-NUM_QUIETOS = 15 # Número de veces que se repite QUIETO entre instrucciones
-FACTOR_TRIGGERR = 3.5 # Factor por el que se divide el número de veces que se repite TriggerR entre instrucciones
-NUM_GIROS_90G = 20 # Número de veces que se repite una instruccion de giro para girar 90 grados
 
 def get_coordinates(coords_path):
     with open(coords_path, "r") as f:
