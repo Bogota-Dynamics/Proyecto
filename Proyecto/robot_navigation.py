@@ -20,7 +20,6 @@ FACTOR_TRIGGERR = 3.5 # Factor por el que se divide el número de veces que se r
 NUM_GIROS_90G = 20 # Número de veces que se repite una instruccion de giro para girar 90 grados
 SECURE_RANGE = 200 # Rango de seguridad en mm (distancia a la que se detiene el robot)
 TIME_TO_CORRECT = 10 # Tiempo que se espera un objeto dinamico para corregir la trayectoria (asumirlo estatico)
-NUM_TRIGGERL = 7 # Número de veces que se repite TriggerL para retroceder si se detecta un objeto estatico
 
 class robot_navigation(Node):
     def __init__(self):
@@ -93,13 +92,19 @@ class robot_navigation(Node):
                 else:
                     time_since_last_movement = time.time() - last_movement_time
                     if time_since_last_movement > TIME_TO_CORRECT:
-                        for j in range(NUM_TRIGGERL):
-                            msg.linear.x = -linear
-                            self.publisher_.publish(msg)
-                            time.sleep(0.05)
+                        msg.linear.x = -linear
+                        time.sleep(0.05)
+                        self.publisher_.publish(msg)
+                        time.sleep(2)
+                        msg.linear.x = 0.0
+                        self.publisher_.publish(msg)
                     else:
                         msg.linear.x=0.0
                         msg.angular.z=0.0
+                        time.sleep(0.05)
+                        if (msg_viejo != msg):
+                            self.publisher_.publish(msg)
+                            msg_viejo = msg
                         continue # No sigue enviando instrucciones hasta que el rango sea mayor a SECURE_RANGE
 
                 # Los mensajes se publican cada 0.05 segundos aproximadamente
