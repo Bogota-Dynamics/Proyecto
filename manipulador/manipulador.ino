@@ -164,10 +164,9 @@ if (Serial.available() > 0) {
       servoMotor3.write(angulo3);
 
     delay(100); // Tiempo de espera entre incrementos
-      
-    manipulador =0;
-  
+    
   }
+  manipulador = 0;
   }
   else if (manipulador==2){ // Base de 10 cm
       // ------------------------------------ ABRIR ---------------------
@@ -213,7 +212,7 @@ if (Serial.available() > 0) {
     delay(100); // Tiempo de espera entre incrementos
   
   }
+  manipulador = 0;
   }
-   manipulador = 0;
   
 }
