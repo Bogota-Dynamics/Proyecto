@@ -16,8 +16,8 @@ from functools import wraps
 
 """ CONSTANTES DE PRUEBA """
 NUM_QUIETOS = 14 # Número de veces que se repite QUIETO entre instrucciones
-FACTOR_TRIGGERR = 5.7 # Factor por el que se divide el número de veces que se repite TriggerR entre instrucciones
-NUM_GIROS_90G = 14 # Número de veces que se repite una instruccion de giro para girar 90 grados
+FACTOR_TRIGGERR = 2.8 # Factor por el que se divide el número de veces que se repite TriggerR entre instrucciones
+TIME_GIRO_90G = 2 # Número de veces que se repite una instruccion de giro para girar 90 grados
 SECURE_RANGE = 170 # Rango de seguridad en mm (distancia a la que se detiene el robot)
 TIME_TO_CORRECT = 10 # Tiempo que se espera un objeto dinamico para corregir la trayectoria (asumirlo estatico)
 TIME_REVERSE = 0.7 # Tiempo durante el que retrocede para corregir la trayectoria (asumirlo estatico)
@@ -59,8 +59,8 @@ class robot_navigation(Node):
         range_viejo = 0
 
         with open(filename, 'r') as f:
-            linear = 5.0
-            angular = 5.0
+            linear = 3.0
+            angular = 3.0
             data = f.readlines()
             i = 0
             # 2. Las siguientes lineas son los movimientos
@@ -85,8 +85,24 @@ class robot_navigation(Node):
                         msg.linear.x = -linear
                     elif line == 'Izquierda':
                         msg.angular.z = angular
+                        time.sleep(0.05)
+                        self.publisher_.publish(msg)
+                        time.sleep(TIME_GIRO_90G)
+                        msg.angular.z = 0.0
+                        self.publisher_.publish(msg)
+                        msg_viejo = msg
+                        i += 1
+                        continue
                     elif line == 'Derecha':
                         msg.angular.z = -angular
+                        time.sleep(0.05)
+                        self.publisher_.publish(msg)
+                        time.sleep(TIME_GIRO_90G)
+                        msg.angular.z = 0.0
+                        self.publisher_.publish(msg)
+                        msg_viejo = msg
+                        i += 1
+                        continue
                     elif line == 'QUIETO':
                         msg.linear.x=0.0
                         msg.angular.z=0.0
@@ -473,7 +489,7 @@ def save_instructions(instructions, instructions_path):
                     instruction = "Izquierda"
                 elif instruction == "Izquierda":
                     instruction = "Derecha"
-                f.write((instruction + "\n")*NUM_GIROS_90G)
+                f.write((instruction + "\n")*1)
         
         f.write(("QUIETO\n")*NUM_QUIETOS)
         f.write(("TriggerR\n")*(int(count//(FACTOR_TRIGGERR))))
