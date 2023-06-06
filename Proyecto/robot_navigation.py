@@ -16,10 +16,11 @@ from functools import wraps
 
 """ CONSTANTES DE PRUEBA """
 NUM_QUIETOS = 15 # Número de veces que se repite QUIETO entre instrucciones
-FACTOR_TRIGGERR = 4 # Factor por el que se divide el número de veces que se repite TriggerR entre instrucciones
+FACTOR_TRIGGERR = 5.3 # Factor por el que se divide el número de veces que se repite TriggerR entre instrucciones
 NUM_GIROS_90G = 20 # Número de veces que se repite una instruccion de giro para girar 90 grados
 SECURE_RANGE = 200 # Rango de seguridad en mm (distancia a la que se detiene el robot)
 TIME_TO_CORRECT = 10 # Tiempo que se espera un objeto dinamico para corregir la trayectoria (asumirlo estatico)
+TIME_REVERSE = 2 # Tiempo durante el que retrocede para corregir la trayectoria (asumirlo estatico)
 
 class robot_navigation(Node):
     def __init__(self):
@@ -95,7 +96,7 @@ class robot_navigation(Node):
                         msg.linear.x = -linear
                         time.sleep(0.05)
                         self.publisher_.publish(msg)
-                        time.sleep(2)
+                        time.sleep(TIME_REVERSE)
                         msg.linear.x = 0.0
                         self.publisher_.publish(msg)
                     else:
