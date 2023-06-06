@@ -100,7 +100,7 @@ def save_instructions(instructions, instructions_path):
                     instruction = "Izquierda"
                 elif instruction == "Izquierda":
                     instruction = "Derecha"
-                f.write((instruction + "\n")*NUM_GIROS_90G)
+                f.write((instruction + "\n")*1)
         
         f.write(("QUIETO\n")*NUM_QUIETOS)
         f.write(("TriggerR\n")*(int(count//(FACTOR_TRIGGERR))))

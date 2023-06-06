@@ -59,8 +59,8 @@ class robot_navigation(Node):
         range_viejo = 0
 
         with open(filename, 'r') as f:
-            linear = 3.0
-            angular = 3.0
+            linear = 5.0
+            angular = 5.0
             data = f.readlines()
             i = 0
             # 2. Las siguientes lineas son los movimientos
