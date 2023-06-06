@@ -1,5 +1,10 @@
 import numpy as np
 
+""" CONSTANTES DE PRUEBA """
+NUM_QUIETOS = 15 # Número de veces que se repite QUIETO entre instrucciones
+FACTOR_TRIGGERR = 3.5 # Factor por el que se divide el número de veces que se repite TriggerR entre instrucciones
+NUM_GIROS_90G = 20 # Número de veces que se repite una instruccion de giro para girar 90 grados
+
 def get_coordinates(coords_path):
     with open(coords_path, "r") as f:
         f.readline() # Skip the first line
@@ -88,19 +93,20 @@ def save_instructions(instructions, instructions_path):
                 count += 1
             else:
                 rect = False
-                f.write(("TriggerR\n")*(int(count//(3.5))))
-                f.write(("QUIETO\n")*15)
+                f.write(("QUIETO\n")*NUM_QUIETOS)
+                f.write(("TriggerR\n")*(int(count//(FACTOR_TRIGGERR))))
+                f.write(("QUIETO\n")*NUM_QUIETOS)
                 count = 0
                 if instruction == "Derecha":
                     instruction = "Izquierda"
                 elif instruction == "Izquierda":
                     instruction = "Derecha"
-                f.write((instruction + "\n")*20)
+                f.write((instruction + "\n")*NUM_GIROS_90G)
         
         if rect:
-            f.write(("QUIETO\n")*15)
-            f.write(("TriggerR\n")*(int(count//(3.5))))
-            f.write(("QUIETO\n")*15)
+            f.write(("QUIETO\n")*NUM_QUIETOS)
+            f.write(("TriggerR\n")*(int(count//(FACTOR_TRIGGERR))))
+            f.write(("QUIETO\n")*NUM_QUIETOS)
 
 def to_instructions(coords_path, instructions_path):
     print(coords_path, instructions_path)
