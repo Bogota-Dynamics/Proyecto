@@ -82,11 +82,12 @@ def get_instructions(data):
 
 def save_instructions(instructions, instructions_path):
     with open(instructions_path, "w") as f:
-        count = 0
+        count, rect = 0, True
         for instruction in instructions:
             if instruction == "TriggerR":
                 count += 1
             else:
+                rect = False
                 f.write(("TriggerR\n")*(int(count//(3.5))))
                 f.write(("QUIETO\n")*15)
                 count = 0
@@ -95,6 +96,11 @@ def save_instructions(instructions, instructions_path):
                 elif instruction == "Izquierda":
                     instruction = "Derecha"
                 f.write((instruction + "\n")*20)
+        
+        if rect:
+            f.write(("QUIETO\n")*15)
+            f.write(("TriggerR\n")*(int(count//(3.5))))
+            f.write(("QUIETO\n")*15)
 
 def to_instructions(coords_path, instructions_path):
     print(coords_path, instructions_path)
