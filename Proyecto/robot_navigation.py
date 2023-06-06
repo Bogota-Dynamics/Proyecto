@@ -14,6 +14,8 @@ import matplotlib.pyplot as plt
 
 from functools import wraps
 
+class M: None
+
 """ CONSTANTES DE PRUEBA """
 NUM_QUIETOS = 14 # Número de veces que se repite QUIETO entre instrucciones
 FACTOR_TRIGGERR = 2.8 # Factor por el que se divide el número de veces que se repite TriggerR entre instrucciones
@@ -28,8 +30,13 @@ class robot_navigation(Node):
         self.service = self.create_service(StartNavigationTest, '/group_7/start_navigation_test_srv', self.navigation_test_callback)
         self.publisher_ = self.create_publisher(Twist, 'robot_cmdVel', 10)
         # Initialize I2C bus and sensor.
-        i2c = busio.I2C(board.SCL, board.SDA)
-        self.vl53 = adafruit_vl53l0x.VL53L0X(i2c)
+        try:
+            i2c = busio.I2C(board.SCL, board.SDA)
+            self.vl53 = adafruit_vl53l0x.VL53L0X(i2c)
+        except ValueError:
+            print("Error al inicializar el sensor VL53L0X")
+            self.vl53 = M()
+            setattr(self.vl53, 'range', 1000)
 
     def navigation_test_callback(self, request, response):
         start_x = 900 # request.start_x
@@ -56,7 +63,6 @@ class robot_navigation(Node):
         self.publisher_.publish(msg)
 
         msg_viejo = 0
-        range_viejo = 0
 
         with open(filename, 'r') as f:
             linear = 5.0

@@ -27,7 +27,11 @@ class robot_bot_control(Node):
         x = msg.linear.x
         z = msg.angular.z
 
-        mensaje = f'{x},{z}'
+        if msg.linear.y != 0:
+            manipulator = msg.linear.y
+            mensaje = f'{x},{z},{manipulator}'
+        else:
+            mensaje = f'{x},{z}'
 
         self.write_read(mensaje)
 

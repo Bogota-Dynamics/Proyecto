@@ -25,7 +25,7 @@ setup(
                             'navigation = Proyecto.robot_navigation:main',
                             'control = Proyecto.robot_control:main',
                             'recreate = Proyecto.robot_recreate:main',
-                            'manipulador = Proyecto.manipulador:main',
+                            'manipulador = Proyecto.robot_manipulador:main',
         ],
     },
 )

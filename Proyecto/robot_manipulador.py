@@ -7,26 +7,54 @@ from geometry_msgs.msg import Twist
 class ManipuladorNode(Node):
 
     def __init__(self):
-        super().__init__('manipulador')
-        self.srv = self.create_service(
+        super().__init__('robot_manipulador')
+        self.service = self.create_service(
             StartManipulationTest,
-            '/group_x/start_manipulation_test_srv',
-            self.start_manipulation_test_callback
+            '/group_7/start_manipulation_test_srv',
+            self.manipulation_test_callback
         )
+        self.publisher_ = self.create_publisher(Twist, 'robot_cmdVel', 10)
         self.get_logger().info('Manipulation Test service is ready')
 
-    def start_manipulation_test_callback(self, request, response):
+    def manipulation_test_callback(self, request, response):
         # Obtener los valores de la solicitud
         platform = request.platform
         x = request.x
 
+        if platform == 'platform_1':
+            self.recrear_recorrido('manipulation_01')
+            time.sleep(5)
+            self.enviar_manipulador(1.0)
+            time.sleep(5)
+            self.recrear_recorrido('manipulation_12')
+            time.sleep(5)
+            self.enviar_manipulador(2.0)
+
+        elif platform == 'platform_2':
+            self.recrear_recorrido('manipulation_02')
+            time.sleep(5)
+            self.enviar_manipulador(2.0)
+            time.sleep(5)
+            self.recrear_recorrido('manipulation_21')
+            time.sleep(5)
+            self.enviar_manipulador(1.0)
+
         # Realizar las operaciones necesarias para determinar la plataforma de origen y destino
         # y construir el mensaje de respuesta
-        origin_platform = 'platform_1' if platform == 'platform_2' else 'platform_2'
-        destination_platform = 'platform_1' if platform == 'platform_1' else 'platform_2'
+
+        origin_platform = 'platform_1' if platform == 'platform_1' else 'platform_2'
+        destination_platform = 'platform_2' if platform == 'platform_1' else 'platform_1'
         response.answer = f"La ficha de tipo {x} se encuentra en la plataforma {origin_platform} y la llevaré a la plataforma {destination_platform}"
+
         return response
     
+    def enviar_manipulador(self, v):
+        msg = Twist()
+        msg.linear.x=0.0
+        msg.angular.z=0.0
+        msg.linear.y = v
+        self.publisher_.publish(msg)
+
     def recrear_recorrido(self, file):
         # leer el archivo y publicar los movimientos
             # leer el archivo y publicar los movimientos
@@ -48,7 +76,6 @@ class ManipuladorNode(Node):
             #    Derecha: derecha
             #    QUIETO: pausa, separada por '=' del tiempo de pausa
             for line in f:
-                start = time.time()
                 line = line.strip()
                 msg = Twist()
                 if line == 'TriggerR':
