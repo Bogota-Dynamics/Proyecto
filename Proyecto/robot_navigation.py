@@ -15,12 +15,12 @@ import matplotlib.pyplot as plt
 from functools import wraps
 
 """ CONSTANTES DE PRUEBA """
-NUM_QUIETOS = 15 # Número de veces que se repite QUIETO entre instrucciones
-FACTOR_TRIGGERR = 5.3 # Factor por el que se divide el número de veces que se repite TriggerR entre instrucciones
-NUM_GIROS_90G = 20 # Número de veces que se repite una instruccion de giro para girar 90 grados
-SECURE_RANGE = 200 # Rango de seguridad en mm (distancia a la que se detiene el robot)
+NUM_QUIETOS = 14 # Número de veces que se repite QUIETO entre instrucciones
+FACTOR_TRIGGERR = 5.5 # Factor por el que se divide el número de veces que se repite TriggerR entre instrucciones
+NUM_GIROS_90G = 14 # Número de veces que se repite una instruccion de giro para girar 90 grados
+SECURE_RANGE = 170 # Rango de seguridad en mm (distancia a la que se detiene el robot)
 TIME_TO_CORRECT = 10 # Tiempo que se espera un objeto dinamico para corregir la trayectoria (asumirlo estatico)
-TIME_REVERSE = 2 # Tiempo durante el que retrocede para corregir la trayectoria (asumirlo estatico)
+TIME_REVERSE = 1 # Tiempo durante el que retrocede para corregir la trayectoria (asumirlo estatico)
 
 class robot_navigation(Node):
     def __init__(self):
@@ -460,12 +460,11 @@ def get_instructions(data):
 
 def save_instructions(instructions, instructions_path):
     with open(instructions_path, "w") as f:
-        count, rect = 0, True
+        count = 0
         for instruction in instructions:
             if instruction == "TriggerR":
                 count += 1
             else:
-                rect = False
                 f.write(("QUIETO\n")*NUM_QUIETOS)
                 f.write(("TriggerR\n")*(int(count//(FACTOR_TRIGGERR))))
                 f.write(("QUIETO\n")*NUM_QUIETOS)
@@ -476,10 +475,9 @@ def save_instructions(instructions, instructions_path):
                     instruction = "Derecha"
                 f.write((instruction + "\n")*NUM_GIROS_90G)
         
-        if rect:
-            f.write(("QUIETO\n")*NUM_QUIETOS)
-            f.write(("TriggerR\n")*(int(count//(FACTOR_TRIGGERR))))
-            f.write(("QUIETO\n")*NUM_QUIETOS)
+        f.write(("QUIETO\n")*NUM_QUIETOS)
+        f.write(("TriggerR\n")*(int(count//(FACTOR_TRIGGERR))))
+        f.write(("QUIETO\n")*NUM_QUIETOS)
 
 def to_instructions(coords_path, instructions_path):
     print(coords_path, instructions_path)
