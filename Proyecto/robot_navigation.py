@@ -341,7 +341,7 @@ def load_pgm_image(filename, filename_wide = None):
         image_wide = Image.open(filename_wide).convert("L")
         wide_grid = np.array(image_wide)
     else:
-        px_ensanchamiento = 35
+        px_ensanchamiento = 75
         wide_grid = widen_grid(grid, px_ensanchamiento, 10)
         wide_grid_image = Image.fromarray(wide_grid)
         wide_grid_image.save(f"wide_grid_{px_ensanchamiento}px.pgm")
@@ -363,7 +363,7 @@ def get_path(start_positionyx, goal_positionyx, showplot=False, go_just_closest=
     #goal_position = (631, 477) # (y, x)
 
     # Load the PGM image
-    grid, wide_grid = load_pgm_image("src/Proyecto/navigation/MapaRobotica.pgm", "src/Proyecto/navigation/wide_grid_35px.pgm")
+    grid, wide_grid = load_pgm_image("src/Proyecto/navigation/MapaRobotica.pgm", "src/Proyecto/navigation/wide_grid_75px.pgm")
 
     # Plot the grid and path
     plt.figure(figsize=(8, 8))
