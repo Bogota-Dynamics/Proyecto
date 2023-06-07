@@ -17,12 +17,12 @@ from functools import wraps
 class M: None
 
 """ CONSTANTES DE PRUEBA """
-NUM_QUIETOS = 14 # Número de veces que se repite QUIETO entre instrucciones
-FACTOR_TRIGGERR = 2.8 # Factor por el que se divide el número de veces que se repite TriggerR entre instrucciones
-TIME_GIRO_90G = 2 # Número de veces que se repite una instruccion de giro para girar 90 grados
+NUM_QUIETOS = 10 # Número de veces que se repite QUIETO entre instrucciones
+FACTOR_TRIGGERR = 5.0 # Factor por el que se divide el número de veces que se repite TriggerR entre instrucciones
+TIME_GIRO_90G = 1 # Número de veces que se repite una instruccion de giro para girar 90 grados
 SECURE_RANGE = 170 # Rango de seguridad en mm (distancia a la que se detiene el robot)
 TIME_TO_CORRECT = 10 # Tiempo que se espera un objeto dinamico para corregir la trayectoria (asumirlo estatico)
-TIME_REVERSE = 0.7 # Tiempo durante el que retrocede para corregir la trayectoria (asumirlo estatico)
+TIME_REVERSE = 0.5 # Tiempo durante el que retrocede para corregir la trayectoria (asumirlo estatico)
 
 class robot_navigation(Node):
     def __init__(self):
@@ -33,10 +33,11 @@ class robot_navigation(Node):
         try:
             i2c = busio.I2C(board.SCL, board.SDA)
             self.vl53 = adafruit_vl53l0x.VL53L0X(i2c)
+            print("Sensor VL53L0X inicializado correctamente")
         except:
-            print("Error al inicializar el sensor VL53L0X")
             self.vl53 = M()
             setattr(self.vl53, 'range', 1000)
+            print("Error al inicializar el sensor VL53L0X")
 
     def navigation_test_callback(self, request, response):
         start_x = 900 # request.start_x
@@ -82,6 +83,7 @@ class robot_navigation(Node):
                 msg = Twist()
                 
                 range = self.vl53.range # Rango en mm medido por el sensor
+                print(f"range {range}")
                 if range > SECURE_RANGE:
                     last_movement_time = time.time()
 
