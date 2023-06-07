@@ -40,8 +40,8 @@ class robot_navigation(Node):
             print("Error al inicializar el sensor VL53L0X")
 
     def navigation_test_callback(self, request, response):
-        start_x = 900 # request.start_x
-        start_y = 455 # request.start_y
+        start_x = 1650 # request.start_x
+        start_y = 945 # request.start_y
         goal_x = int(request.x)
         goal_y = int(request.y)
 
