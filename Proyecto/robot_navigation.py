@@ -18,8 +18,8 @@ class M: None
 
 """ CONSTANTES DE PRUEBA """
 NUM_QUIETOS = 10 # Número de veces que se repite QUIETO entre instrucciones
-FACTOR_TRIGGERR = 5.0 # Factor por el que se divide el número de veces que se repite TriggerR entre instrucciones
-TIME_GIRO_90G = 1 # Número de veces que se repite una instruccion de giro para girar 90 grados
+FACTOR_TRIGGERR = 4.6 # Factor por el que se divide el número de veces que se repite TriggerR entre instrucciones
+TIME_GIRO_90G = 0.65 # Número de veces que se repite una instruccion de giro para girar 90 grados
 SECURE_RANGE = 170 # Rango de seguridad en mm (distancia a la que se detiene el robot)
 TIME_TO_CORRECT = 10 # Tiempo que se espera un objeto dinamico para corregir la trayectoria (asumirlo estatico)
 TIME_REVERSE = 0.5 # Tiempo durante el que retrocede para corregir la trayectoria (asumirlo estatico)
