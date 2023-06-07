@@ -26,6 +26,8 @@ setup(
                             'control = Proyecto.robot_control:main',
                             'recreate = Proyecto.robot_recreate:main',
                             'manipulador = Proyecto.robot_manipulador:main',
+                            'teleop = Proyecto.robot_teleop:main',
+                            'control_manipulador = Proyecto.robot_control_manipulador:main',
         ],
     },
 )
