@@ -146,7 +146,7 @@ class robot_navigation(Node):
         # retornar el path global del archivo
 
 
-#GOLAAAAAAAAAA
+#GOLAAAAAAAAAAaaa
 def main(args=None):
     rclpy.init(args=args)
     navigation = robot_navigation()
